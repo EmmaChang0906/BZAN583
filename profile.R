@@ -12,9 +12,6 @@ y2 = runif(num_points)
 
  
 Rprof()
-distances = numeric(num_points)
-  for (i in 1:num_points) {
-    distances[i] = euclidean_distance(x1[i], y1[i], x2[i], y2[i])
-  }
+system.time(euclidean_distance(x1,y1,x2,y2))
 Rprof(NULL)
 summaryRprof()
