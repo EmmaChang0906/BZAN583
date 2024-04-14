@@ -1,21 +1,18 @@
-euclidean_distance = function(x1, y1, x2, y2) {
-  distance = sqrt((x2 - x1)^2 + (y2 - y1)^2)
-  return(distance)
-}
+library(arrow)
+library(dplyr)
+audio_features <- read.csv("/projects/bckj/Team2/data/Spotify/audio_features.csv")
+sp_track <- read.csv("/projects/bckj/Team2/data/Spotify/sp_track.csv")
+bp_track <- read.csv("/projects/bckj/Team2/data/Spotify/bp_track.csv")
+bp_genre <- read.csv("/projects/bckj/Team2/data/Spotify/bp_genre.csv")
 
-set.seed(123) # Setting seed for reproducibility
-num_points <- 10^6
-x1 = runif(num_points)
-y1 = runif(num_points)
-x2 = runif(num_points)
-y2 = runif(num_points)
+sp_track <- sp_track[, !(colnames(sp_track) %in% c("duration_ms","updated_on","preview_url"))]
+bp_track <- bp_track[, !(colnames(bp_track) %in% c("duration_ms","updated_on","track_id","release_id"))]
+bp_genre <- bp_genre[, !(colnames(bp_genre) %in% c("updated_on"))]
 
+df <- merge(audio_features, sp_track, by = "isrc")
+df <- merge(df , bp_track, by = "isrc")
+df <- merge(df , bp_genre, by = "genre_id")
+
+write_parquet(df,  sink = "/scratch/projects/bckj/Team2/data/parquet")
  
-Rprof()
-system.time(
-  {distances = numeric(num_points)
-  for (i in 1:num_points) {
-    distances[i] = euclidean_distance(x1[i], y1[i], x2[i], y2[i])
-  }})
-Rprof(NULL)
-summaryRprof()
+
